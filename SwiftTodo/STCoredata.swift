@@ -12,15 +12,26 @@ import CoreData
 
 class CoreData {
     
+    static let sharedInstance = CoreData()
+    
+    private init() {}
+    
+    private var persistentContainer: NSPersistentContainer = {
+        
+        let container = NSPersistentContainer(name: "SwiftTodo")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    
     
     func initing () -> [NSManagedObject] {
         var myLists: [NSManagedObject] = []
         
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return myLists
-        }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "STList")
         
         
@@ -33,15 +44,11 @@ class CoreData {
         return myLists
     }
     
-    func saveChanges(becoming: Bool, forString: String) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
+    func saveChanges(becoming: Bool, forString: String, withIdentifier: String) {
+        let managedContext = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "STList")
-        fetchRequest.predicate = NSPredicate(format: "todo == %@ AND isFinished == %@", forString, NSNumber(booleanLiteral: !becoming))
-        
+        fetchRequest.predicate = NSPredicate(format: "todo == %@ AND isFinished == %@ AND identifier == %@", forString, NSNumber(booleanLiteral: !becoming), withIdentifier)
+    
         let result = try? managedContext.fetch(fetchRequest)
         
         if result?.count != 0 {
@@ -56,16 +63,15 @@ class CoreData {
     }
     
     func saveNewTodo(todo: String) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        
-        let managedContext = appDelegate.persistentContainer.viewContext
+        let managedContext = persistentContainer.viewContext
         let entity = NSEntityDescription.entity(forEntityName: "STList", in: managedContext)!
         let newEntity = NSManagedObject(entity: entity, insertInto: managedContext)
         
+        let uuid = NSUUID().uuidString
+        
         newEntity.setValue(todo, forKeyPath: "todo")
         newEntity.setValue(false, forKey: "isFinished")
+        newEntity.setValue(uuid, forKey: "identifier")
         
         do {
             try managedContext.save()
@@ -74,17 +80,19 @@ class CoreData {
         }
     }
     
-    func deleteTodo(todo: String, isDone: Bool) {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
+    func deleteTodo(todo: String, isDone: Bool, identifier: String) {
+        let managedContext = persistentContainer.viewContext
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "STList")
         
-        fetchRequest.predicate = NSPredicate(format: "todo == %@ AND isFinished == %@", todo, NSNumber(booleanLiteral: isDone))
+        fetchRequest.predicate = NSPredicate(format: "todo == %@ AND isFinished == %@ AND identifier == %@", todo, NSNumber(booleanLiteral: isDone), identifier)
         let result = try? managedContext.fetch(fetchRequest)
         if result?.count != 0 {
             managedContext.delete((result?[0])!)
+            do {
+                try managedContext.save()
+            } catch {
+                fatalError("Failure to save context: \(error)")
+            }
         }
     }
 }

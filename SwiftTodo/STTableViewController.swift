@@ -9,11 +9,22 @@
 import UIKit
 import CoreData
 
-class STTableViewController: UITableViewController {
+class STTableViewController: UITableViewController, STDelegate{
+    
+    let coreData = CoreData.sharedInstance
     
     var myLists: [NSManagedObject] = []
     var thisIndexPath: NSInteger = 0
-
+    
+    func doChanges(cell: STTableViewCell, becoming: Bool) {
+        guard let thisIndex = tableView.indexPath(for: cell) else {
+            return
+        }
+        let newSave = myLists[thisIndex.row]
+        
+        coreData.saveChanges(becoming: becoming, forString: cell.lbl.text!, withIdentifier: newSave.value(forKey: "identifier") as! String)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -25,12 +36,10 @@ class STTableViewController: UITableViewController {
         super.viewWillAppear(animated)
         
         updateData()
-        
-        self.tableView.reloadData()
+        tableView.reloadData()
     }
     
     func updateData () {
-        let coreData = CoreData()
         myLists = coreData.initing()
     }
 
@@ -45,9 +54,9 @@ class STTableViewController: UITableViewController {
             let some = myLists[indexPath.row]
             let string = some.value(forKeyPath: "todo") as? String
             let isDone = some.value(forKey: "isFinished") as? Bool
-            
-            let deleting = CoreData()
-            deleting.deleteTodo(todo: string!, isDone: isDone!)
+            let ident = some.value(forKey: "identifier")
+
+            coreData.deleteTodo(todo: string!, isDone: isDone!, identifier: ident as! String)
             
             updateData()
             
@@ -94,6 +103,8 @@ class STTableViewController: UITableViewController {
         let thisList = myLists[indexPath.row]
         let thisText = thisList.value(forKeyPath: "todo") as! String
         let thisBool = thisList.value(forKey: "isFinished") as! Bool
+        
+        cell.delegate = self
         
         cell.cellConfiguration(lblText: thisText, isDone: thisBool)
         

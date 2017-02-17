@@ -9,7 +9,13 @@
 import UIKit
 import CoreData
 
-class STTableViewCell: UITableViewCell {
+protocol STDelegate {
+    func doChanges(cell: STTableViewCell, becoming: Bool)
+}
+
+class STTableViewCell: UITableViewCell{
+    
+    var delegate: STDelegate?
 
     @IBOutlet weak var btn: UIButton!
     @IBOutlet weak var lbl: UILabel!
@@ -23,7 +29,6 @@ class STTableViewCell: UITableViewCell {
     }
 
     @IBAction func btnPressed(_ sender: Any) {
-        
         // changing status
         
         let string = self.lbl.text
@@ -37,8 +42,7 @@ class STTableViewCell: UITableViewCell {
             changing = true
         }
         
-        let changes = CoreData ()
-        changes.saveChanges(becoming: changing, forString: string!)
+        delegate?.doChanges(cell: self, becoming: changing)
     }
     
     func cellConfiguration(lblText: String, isDone: Bool) {

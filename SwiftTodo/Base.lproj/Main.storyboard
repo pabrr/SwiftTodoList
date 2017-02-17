@@ -75,7 +75,7 @@
                                 <rect key="frame" x="0.0" y="28" width="375" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Vrc-Ha-eEV" id="6So-7z-1tR">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rfu-dQ-kUu">
@@ -121,7 +121,7 @@
                     <navigationItem key="navigationItem" title="to do" id="7ax-Hj-Bex">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Ia5-Ly-z4S">
                             <connections>
-                                <segue destination="BYZ-38-t0r" kind="modal" id="nO8-6I-BTa"/>
+                                <segue destination="BYZ-38-t0r" kind="presentation" id="mM3-cx-a8d"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

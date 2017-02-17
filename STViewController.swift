@@ -11,6 +11,8 @@ import CoreData
 
 class STViewController: UIViewController {
     
+    let coreDate = CoreData.sharedInstance
+    
     var thatText: String = ""
     var isEdit: Bool = true
 
@@ -44,8 +46,7 @@ class STViewController: UIViewController {
         if textView.text != "" {
         let todoToSave: String = textView.text
         
-        let savings = CoreData ()
-        savings.saveNewTodo(todo: todoToSave)
+        coreDate.saveNewTodo(todo: todoToSave)
         
         self.dismiss(animated: true, completion: nil)
         }
